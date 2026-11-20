@@ -1,0 +1,261 @@
+---
+title: "final_Project"
+author: "Kevin"
+date: "2025-12-05"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(leaps)
+
+# (2) Read data (change path to where you saved the csv)
+df_raw <- read_csv("~/Desktop/stat/players_champion_perf_wide_2.csv")
+
+```
+
+```{r}
+df_change <- df_raw %>%
+  mutate(
+    # percent/log change in market value
+    pct_change_mp = if_else(
+      value_2021 > 0 & value_2022 > 0,
+      log(value_2022) - log(value_2021),
+      NA_real_
+    ),
+
+    champion_2021 = if_else(rank_2021 == 1, 1L, 0L)
+  ) %>%
+  filter(is.finite(pct_change_mp)) %>%
+  mutate(
+    # categorical variables
+    champion_2021 = factor(champion_2021),
+    main_position = factor(main_position),
+    foot          = factor(foot),
+    citizenship   = factor(citizenship),
+    is_eu         = factor(is_eu)
+  )
+
+```
+
+```{r}
+df_change <- df_raw %>%
+  mutate(
+    # percent/log change in market value 2021 -> 2022
+    pct_change_mp = if_else(
+      value_2021 > 0 & value_2022 > 0,
+      (value_2022-value_2021)/value_2021,
+      NA_real_
+    ),
+    # champion indicator based on rank_2021
+    champion_2021 = if_else(rank_2021 == 1, 1L, 0L)
+  ) %>%
+  filter(is.finite(pct_change_mp)) %>%
+  mutate(
+    champion_2021 = factor(champion_2021),
+    main_position = factor(main_position),
+    foot          = factor(foot),
+    is_eu         = factor(is_eu)
+  )
+
+summary(df_change$pct_change_mp)
+```
+
+```{r}
+df_screen <- df_change %>%
+  select(
+    value_2022,          # response
+
+    # treatment variable INCLUDED as predictor candidate
+    #champion_2021,
+
+    # 2021 performance stats
+    goals_2021,
+    assists_2021,
+    nb_in_group_2021,
+    nb_on_pitch_2021,
+    own_goals_2021,
+    subed_in_2021,
+    subed_out_2021,
+    yellow_cards_2021,
+    second_yellow_cards_2021,
+    direct_red_cards_2021,
+    penalty_goals_2021,
+    minutes_played_2021,
+    clean_sheets_2021,
+    
+    
+    #value_2021,
+
+    # player attributes
+    #height,
+    #main_position,
+    foot,
+    is_eu
+  ) %>%
+  na.omit()
+
+str(df_screen)
+```
+
+```{r}
+
+best.mods <- regsubsets(
+  value_2022 ~ .,
+  data   = df_screen,
+  nvmax  = ncol(df_screen) - 1,
+  method = "exhaustive"
+)
+
+par(mfrow = c(1,1))
+plot(
+  best.mods,
+  scale = "adjr2",
+  col = "black",
+  col.axis = "black",
+  col.lab = "black",
+  main = "Best Subsets ",
+  cex.axis = 0.8,
+  cex.lab  = 0.8
+)
+
+best.sum <- summary(best.mods)
+best.sum
+
+
+```
+
+```{r}
+mod_reduced <- lm(
+  value_2022 ~ goals_2021+assists_2021+nb_in_group_2021,
+  data = df_change
+)
+summary(mod_reduced)
+```
+
+```{r}
+df_model <- df_change %>%
+  select(pct_change_mp,
+         goals_2021,
+         subed_out_2021,
+         penalty_goals_2021,
+         champion_2021) %>%
+  drop_na()   # removes rows with any NA in these columns
+
+nrow(df_model)
+```
+
+
+```{r}
+mod_reduced <- lm(
+  pct_change_mp ~ goals_2021 + subed_out_2021 + penalty_goals_2021,
+  data = df_model
+)
+
+mod_full <- lm(
+  pct_change_mp ~ goals_2021 + subed_out_2021 + penalty_goals_2021 + champion_2021,
+  data = df_model
+)
+
+summary(mod_reduced)
+summary(mod_full)
+```
+
+```{r}
+anova(mod_reduced, mod_full)
+```
+
+```{r}
+df_model$resid  <- resid(mod_reduced)
+df_model$fitted <- fitted(mod_reduced)
+df_model$order  <- seq_len(nrow(df_model))
+```
+
+```{r}
+ggplot(df_model, aes(fitted, resid)) +
+  geom_point(alpha=.6) +
+  geom_hline(yintercept=0, color="red", linetype="dashed") +
+  labs(title="Residuals vs Fitted (Reduced Model)",
+       x="Fitted pct_change_mp", y="Residuals") +
+  theme_bw()
+
+```
+
+```{r}
+ggplot(df_model, aes(order, resid)) +
+  geom_point(alpha=.6) +
+  geom_line(alpha=.4) +
+  geom_hline(yintercept=0, color="red", linetype="dashed") +
+  labs(title="Residuals vs Observation Order",
+       y="Residuals") +
+  theme_bw()
+
+```
+
+```{r}
+ggplot(df_model, aes(sample=resid)) +
+  stat_qq(alpha=.7) +
+  stat_qq_line(color="red") +
+  labs(title="Normal Q-Q (Reduced Model)") +
+  theme_bw()
+
+```
+
+```{r}
+for (v in c("goals_2021","subed_out_2021","penalty_goals_2021")) {
+  print(
+    ggplot(df_model, aes_string(v, "resid")) +
+      geom_point(alpha=.6) +
+      geom_hline(yintercept=0, color="red", linetype="dashed") +
+      labs(title=paste("Residuals vs", v)) +
+      theme_bw()
+  )
+}
+
+```
+
+```{r}
+beta_champ <- coef(mod_full)["champion_20211"]
+pct_effect <- (exp(beta_champ) - 1) * 100
+pct_effect
+
+```
+
+```{r}
+summary(mod_reduced)
+anova(mod_reduced, mod_full)
+pct_effect
+
+```
+
+
+```{r}
+ggplot(df_change, aes(x = goals_2021, y = pct_change_mp)) +
+  geom_point(alpha = 0.5, color = "black") +
+  geom_smooth(method = "lm", se = FALSE, color = "red", linewidth = 1) +
+  labs(
+    title = "Goals vs Percent Change in Market Price (2021 2022)",
+    x = "Goals (2021 Season)",
+    y = "Percent Log Change in Market Price"
+  ) +
+  theme_bw()
+```
+
+```{r}
+ggplot(df_change, aes(x = subed_out_2021, y = pct_change_mp)) +
+  geom_point(alpha = 0.5, color = "black") +
+  geom_smooth(method = "lm", se = FALSE, color = "blue", linewidth = 1) +
+  labs(
+    title = "Subed-out Events vs Percent Change in Market Price (2021 2022)",
+    x = "Times Subbed Out (2021)",
+    y = "Percent Log Change in Market Price"
+  ) +
+  theme_bw()
+```
+
+
+

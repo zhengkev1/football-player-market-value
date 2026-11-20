@@ -1,0 +1,230 @@
+Players with a positive value in 2021 and 2022: 3910 
+
+Distribution of pct_change_mp:
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+ -0.8750  -0.1667   0.0000   0.5532   0.5000 149.0000 
+
+Number of players whose value rose by more than 1,000%: 26 
+Largest percent changes: 29, 29, 49, 59, 149 
+
+=== Best subsets (exhaustive), response = pct_change_mp; n = 3700 ===
+Subset selection object
+Call: regsubsets.formula(pct_change_mp ~ ., data = df_screen, nvmax = ncol(df_screen) - 
+    1, method = "exhaustive")
+16 Variables  (and intercept)
+                         Forced in Forced out
+goals_2021                   FALSE      FALSE
+assists_2021                 FALSE      FALSE
+nb_in_group_2021             FALSE      FALSE
+nb_on_pitch_2021             FALSE      FALSE
+own_goals_2021               FALSE      FALSE
+subed_in_2021                FALSE      FALSE
+subed_out_2021               FALSE      FALSE
+yellow_cards_2021            FALSE      FALSE
+second_yellow_cards_2021     FALSE      FALSE
+direct_red_cards_2021        FALSE      FALSE
+penalty_goals_2021           FALSE      FALSE
+minutes_played_2021          FALSE      FALSE
+clean_sheets_2021            FALSE      FALSE
+footleft                     FALSE      FALSE
+footright                    FALSE      FALSE
+is_euTRUE                    FALSE      FALSE
+1 subsets of each size up to 15
+Selection Algorithm: exhaustive
+          goals_2021 assists_2021 nb_in_group_2021 nb_on_pitch_2021
+1  ( 1 )  "*"        " "          " "              " "             
+2  ( 1 )  "*"        " "          " "              " "             
+3  ( 1 )  "*"        " "          " "              " "             
+4  ( 1 )  "*"        " "          " "              " "             
+5  ( 1 )  "*"        " "          " "              "*"             
+6  ( 1 )  "*"        "*"          " "              "*"             
+7  ( 1 )  "*"        "*"          " "              "*"             
+8  ( 1 )  "*"        "*"          " "              "*"             
+9  ( 1 )  "*"        "*"          " "              "*"             
+10  ( 1 ) "*"        "*"          " "              "*"             
+11  ( 1 ) "*"        "*"          " "              "*"             
+12  ( 1 ) "*"        "*"          " "              "*"             
+13  ( 1 ) "*"        "*"          " "              "*"             
+14  ( 1 ) "*"        "*"          " "              "*"             
+15  ( 1 ) "*"        "*"          "*"              "*"             
+          own_goals_2021 subed_in_2021 subed_out_2021 yellow_cards_2021
+1  ( 1 )  " "            " "           " "            " "              
+2  ( 1 )  " "            " "           "*"            " "              
+3  ( 1 )  " "            " "           "*"            " "              
+4  ( 1 )  " "            " "           "*"            " "              
+5  ( 1 )  " "            " "           "*"            " "              
+6  ( 1 )  " "            " "           "*"            " "              
+7  ( 1 )  " "            " "           "*"            " "              
+8  ( 1 )  " "            " "           "*"            " "              
+9  ( 1 )  " "            " "           "*"            " "              
+10  ( 1 ) " "            " "           "*"            " "              
+11  ( 1 ) " "            "*"           "*"            "*"              
+12  ( 1 ) " "            "*"           "*"            "*"              
+13  ( 1 ) " "            "*"           "*"            "*"              
+14  ( 1 ) "*"            "*"           "*"            "*"              
+15  ( 1 ) "*"            "*"           "*"            "*"              
+          second_yellow_cards_2021 direct_red_cards_2021 penalty_goals_2021
+1  ( 1 )  " "                      " "                   " "               
+2  ( 1 )  " "                      " "                   " "               
+3  ( 1 )  " "                      " "                   "*"               
+4  ( 1 )  " "                      " "                   "*"               
+5  ( 1 )  " "                      " "                   "*"               
+6  ( 1 )  " "                      " "                   "*"               
+7  ( 1 )  " "                      " "                   "*"               
+8  ( 1 )  " "                      " "                   "*"               
+9  ( 1 )  " "                      " "                   "*"               
+10  ( 1 ) " "                      "*"                   "*"               
+11  ( 1 ) " "                      " "                   "*"               
+12  ( 1 ) " "                      "*"                   "*"               
+13  ( 1 ) "*"                      "*"                   "*"               
+14  ( 1 ) "*"                      "*"                   "*"               
+15  ( 1 ) "*"                      "*"                   "*"               
+          minutes_played_2021 clean_sheets_2021 footleft footright is_euTRUE
+1  ( 1 )  " "                 " "               " "      " "       " "      
+2  ( 1 )  " "                 " "               " "      " "       " "      
+3  ( 1 )  " "                 " "               " "      " "       " "      
+4  ( 1 )  " "                 "*"               " "      " "       " "      
+5  ( 1 )  " "                 "*"               " "      " "       " "      
+6  ( 1 )  " "                 "*"               " "      " "       " "      
+7  ( 1 )  " "                 "*"               " "      " "       "*"      
+8  ( 1 )  " "                 "*"               " "      "*"       "*"      
+9  ( 1 )  " "                 "*"               "*"      "*"       "*"      
+10  ( 1 ) " "                 "*"               "*"      "*"       "*"      
+11  ( 1 ) " "                 "*"               "*"      "*"       "*"      
+12  ( 1 ) " "                 "*"               "*"      "*"       "*"      
+13  ( 1 ) " "                 "*"               "*"      "*"       "*"      
+14  ( 1 ) " "                 "*"               "*"      "*"       "*"      
+15  ( 1 ) " "                 "*"               "*"      "*"       "*"      
+
+Best adjusted R^2 by model size:
+   n_predictors      adj_r2       bic          cp
+1             1 0.001309111  10.58489  3.10429513
+2             2 0.002435256  13.62574 -0.06606442
+3             3 0.003720914  16.06926 -3.82467600
+4             4 0.003761922  23.13184 -2.97432721
+5             5 0.003978865  29.54063 -2.77484679
+6             6 0.003848102  37.24068 -1.28878586
+7             7 0.003684949  45.06069  0.31679065
+8             8 0.003515016  52.90549  1.94710368
+9             9 0.003360864  60.69134  3.51874962
+10           10 0.003124083  68.78352  5.39539941
+11           11 0.002887699  76.87375  7.27010326
+12           12 0.002649809  84.96908  9.14990127
+13           13 0.002404516  93.09139 11.05655121
+14           14 0.002145964 101.26237 13.01164776
+15           15 0.001878194 109.46700 15.00023955
+null device 
+          1 
+
+
+=== Models on n = 3726 players ===
+
+--- Reduced model ---
+
+Call:
+lm(formula = pct_change_mp ~ goals_2021 + subed_out_2021 + penalty_goals_2021, 
+    data = df_model)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+ -2.580  -0.735  -0.490  -0.022 148.167 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)         0.578612   0.079322   7.294 3.65e-13 ***
+goals_2021          0.069856   0.017333   4.030 5.68e-05 ***
+subed_out_2021     -0.025321   0.009673  -2.618  0.00889 ** 
+penalty_goals_2021 -0.184801   0.075867  -2.436  0.01490 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.245 on 3722 degrees of freedom
+Multiple R-squared:  0.004525,	Adjusted R-squared:  0.003723 
+F-statistic:  5.64 on 3 and 3722 DF,  p-value: 0.0007469
+
+
+--- Full model (adds champion_2021) ---
+
+Call:
+lm(formula = pct_change_mp ~ goals_2021 + subed_out_2021 + penalty_goals_2021 + 
+    champion_2021, data = df_model)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+ -2.615  -0.737  -0.493  -0.027 148.140 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)         0.605413   0.089514   6.763 1.56e-11 ***
+goals_2021          0.070047   0.017337   4.040 5.44e-05 ***
+subed_out_2021     -0.025208   0.009676  -2.605  0.00921 ** 
+penalty_goals_2021 -0.185046   0.075874  -2.439  0.01478 *  
+champion_20211     -0.070172   0.108580  -0.646  0.51814    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.246 on 3721 degrees of freedom
+Multiple R-squared:  0.004637,	Adjusted R-squared:  0.003567 
+F-statistic: 4.334 on 4 and 3721 DF,  p-value: 0.001691
+
+
+--- F-test: does champion_2021 add anything? ---
+Analysis of Variance Table
+
+Model 1: pct_change_mp ~ goals_2021 + subed_out_2021 + penalty_goals_2021
+Model 2: pct_change_mp ~ goals_2021 + subed_out_2021 + penalty_goals_2021 + 
+    champion_2021
+  Res.Df   RSS Df Sum of Sq      F Pr(>F)
+1   3722 39202                           
+2   3721 39197  1    4.3997 0.4177 0.5181
+
+
+=== Robustness: log-change response (n = 3726 ) ===
+
+Call:
+lm(formula = log_change_mp ~ goals_2021 + subed_out_2021 + penalty_goals_2021 + 
+    champion_2021, data = df_log)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.1958 -0.3524 -0.1218  0.2455  4.7912 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)         0.123101   0.016786   7.334 2.73e-13 ***
+goals_2021          0.025467   0.003251   7.834 6.13e-15 ***
+subed_out_2021     -0.005503   0.001814  -3.033  0.00244 ** 
+penalty_goals_2021 -0.058692   0.014228  -4.125 3.79e-05 ***
+champion_20211      0.035304   0.020361   1.734  0.08302 .  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.6086 on 3721 degrees of freedom
+Multiple R-squared:  0.01751,	Adjusted R-squared:  0.01646 
+F-statistic: 16.58 on 4 and 3721 DF,  p-value: 1.781e-13
+
+
+=== Robustness: percent change, 5 largest values dropped (n = 3721 ) ===
+
+Call:
+lm(formula = pct_change_mp ~ goals_2021 + subed_out_2021 + penalty_goals_2021 + 
+    champion_2021, data = df_trim)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.1438 -0.6469 -0.4179  0.0400 25.5011 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)         0.447043   0.044930   9.950  < 2e-16 ***
+goals_2021          0.053313   0.008696   6.131 9.65e-10 ***
+subed_out_2021     -0.014578   0.004853  -3.004 0.002686 ** 
+penalty_goals_2021 -0.128723   0.038048  -3.383 0.000724 ***
+champion_20211      0.014425   0.054465   0.265 0.791136    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.627 on 3716 degrees of freedom
+Multiple R-squared:  0.01006,	Adjusted R-squared:  0.008991 
+F-statistic: 9.438 on 4 and 3716 DF,  p-value: 1.374e-07
+

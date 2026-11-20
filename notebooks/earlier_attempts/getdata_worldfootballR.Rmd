@@ -1,0 +1,61 @@
+---
+title: "project"
+author: "Kevin"
+date: "2025-11-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r setup, include=FALSE}
+
+
+library(worldfootballR)
+library(dplyr)
+library(readxl)
+library(writexl)
+library(stringr)
+
+```
+
+
+```{r}
+players <- read_excel("~/Desktop/stat/all_player_DEU.xlsx")
+
+df <- tm_player_market_values(country_name = "Germany", start_year = 2024)
+
+# Clean player name column
+players <- players %>%
+  mutate(PlayerNameClean = tolower(str_trim(Player)))
+```
+
+```{r}
+mv_esp_2023 <- tm_player_market_values(
+  country_name = "France",
+  start_year   = 2024
+)
+
+# Keep useful columns
+mv_esp_2023_clean <- mv_esp_2023 %>%
+  mutate(PlayerNameClean = tolower(str_trim(player_name))) %>%
+  select(
+    PlayerNameClean,
+    MarketValue = player_market_value_euro,
+    Club = squad,
+    League = comp_name
+  )
+```
+
+
+```{r}
+players_with_VALUE <- players %>%
+  left_join(mv_esp_2023_clean, by = "PlayerNameClean")
+
+# --- Step 4: Save output file ---
+write_xlsx(players_with_VALUE, "players_with_market_value_DEU.xlsx")
+```
+
+

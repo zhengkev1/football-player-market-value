@@ -1,0 +1,96 @@
+---
+title: "testpy"
+author: "Kevin"
+date: "2025-12-01"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(worldfootballR)
+library(readxl)
+library(writexl)
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(purrr)
+
+```
+
+```{r}
+players2 <- read_excel("~/Desktop/stat/stat_proj_dt1.xlsx")%>%
+  mutate(
+    PlayerNameClean = tolower(str_squish(Player))
+  )
+
+```
+
+```{r}
+years_21_23 <- 2021:2023
+countries_5  <- c("England", "Spain", "France", "Germany", "Italy")
+
+
+test_one <- tm_player_market_values(
+  country_name = "Spain",
+  start_year   = 2021
+)
+
+head(test_one)
+```
+
+
+```{r}
+mv_5_21_23_raw <- map_dfr(
+  years_21_23,
+  ~ tm_player_market_values(
+      country_name = countries_5,
+      start_year   = .x
+    ) %>%
+      mutate(SeasonStart = .x)   # 记录年份：2021/2022/2023
+)
+
+```
+
+```{r}
+mv_5_21_23_clean <- mv_5_21_23_raw %>%
+  mutate(
+    PlayerNameClean = tolower(str_squish(player_name))
+  ) %>%
+  select(
+    PlayerNameClean,
+    SeasonStart,                             # 2021, 2022, 2023
+    MarketValue = player_market_value_euro,  # 身价（欧元）
+    Club        = squad,
+    League      = comp_name
+  )
+```
+
+```{r}
+mv_5_21_23_wide <- mv_5_21_23_clean %>%
+  group_by(PlayerNameClean, SeasonStart) %>%
+  summarise(
+    MarketValue = max(MarketValue, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from   = SeasonStart,      # 2021 / 2022 / 2023 变成列名
+    values_from  = MarketValue,      # 列里的值是当年的身价
+    names_prefix = "MV_"             # MV_2021, MV_2022, MV_2023
+  )
+
+head(mv_5_21_23_wide)
+```
+
+```{r}
+players2_with_values <- players2 %>%
+  left_join(mv_5_21_23_wide, by = "PlayerNameClean")
+```
+
+```{r}
+write_xlsx(players2_with_values, "players2_MV_2021_2023.xlsx")
+```
+
+

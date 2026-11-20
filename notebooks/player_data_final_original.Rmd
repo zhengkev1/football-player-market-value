@@ -1,0 +1,216 @@
+---
+title: "filter_dt"
+author: "Kevin"
+date: "2025-12-01"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+library(dplyr)
+library(lubridate)
+
+
+```
+
+```{r}
+df <- read_csv("~/Desktop/stat/player_market_value.csv")
+
+df <- df %>%
+  mutate(
+    date_unix = ymd(date_unix),
+    year = year(date_unix)
+  )
+
+# 3. Keep only 2021–2023
+df_2123 <- df %>%
+  filter(year >= 2021 & year <= 2023)
+
+# 4. Count distinct years for each player
+year_counts <- df_2123 %>%
+  group_by(player_id) %>%
+  summarise(n_years = n_distinct(year), .groups = "drop")
+
+# 5. Keep players who appear in at least 2 years
+valid_players <- year_counts %>%
+  filter(n_years >= 2) %>%
+  pull(player_id)
+
+df_2123_valid <- df_2123 %>%
+  filter(player_id %in% valid_players)
+
+# 6. For each player-year, keep only the latest record
+df_final <- df_2123_valid %>%
+  arrange(player_id, year, date_unix) %>%          # sort oldest → newest
+  group_by(player_id, year) %>%                     # group by player & year
+  slice_tail(n = 1) %>%                             # keep *latest* date per year
+  ungroup()
+
+```
+
+```{r}
+write_csv(df_final, "player_market_value_cleaned.csv")
+
+df_final
+
+```
+
+```{r}
+mv_clean <- read_csv("~/Desktop/stat/player_market_value_cleaned.csv")
+profile  <- read_csv("~/Desktop/stat/player_profiles.csv")
+
+merged <- mv_clean %>%
+  left_join(profile, by = "player_id") %>%
+  relocate(
+    current_club_name,
+    .before = 1
+  )
+```
+
+```{r}
+wide <- merged %>%
+  select(player_id, current_club_name, year, value,height,citizenship,is_eu,main_position,foot) %>%
+  pivot_wider(
+    names_from = year,
+    values_from = value,
+    names_prefix = "value_"
+  )
+```
+
+```{r}
+team <- read_csv("~/Desktop/stat/team_competitions_seasons.csv")
+
+team_ranks_wide <- team %>%
+  filter(season_id %in% 2021:2023) %>%              # keep only 2021–2023
+  select(team_name, season_id, season_rank) %>%     # only what we need
+  distinct(team_name, season_id, .keep_all = TRUE) %>%  # just in case
+  mutate(season_id = paste0("rank_", season_id)) %>%    # rank_2021, rank_2022, ...
+  pivot_wider(
+    names_from  = season_id,
+    values_from = season_rank
+  )
+```
+
+```{r}
+players_with_ranks <- wide %>%
+  left_join(
+    team_ranks_wide,
+    by = c("current_club_name" = "team_name")
+  )
+```
+
+```{r}
+players_champion <- players_with_ranks %>%
+  filter(if_any(starts_with("rank_"), ~ .x == 1))
+```
+
+```{r}
+perf <- read_csv("~/Desktop/stat/player_performances.csv")
+
+```
+
+```{r}
+
+perf_yrs <- perf %>%
+  mutate(
+    year_start = case_when(
+      str_detect(season_name, "^[0-9]{2}/[0-9]{2}$") ~
+        2000 + as.numeric(str_sub(season_name, 1, 2)),
+      str_detect(season_name, "^[0-9]{4}$") ~ as.numeric(season_name),
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  filter(year_start %in% 2021:2023)
+```
+
+```{r}
+perf_summary <- perf_yrs %>%
+  group_by(player_id, year_start) %>%
+  summarise(
+    across(
+      c(
+        nb_in_group,
+        nb_on_pitch,
+        goals,
+        assists,
+        own_goals,
+        subed_in,
+        subed_out,
+        yellow_cards,
+        second_yellow_cards,
+        direct_red_cards,
+        penalty_goals,
+        minutes_played,
+        goals_conceded,
+        clean_sheets
+      ),
+      ~ sum(.x, na.rm = TRUE)
+    ),
+    perf = goals + assists,   # now uses the *summed* goals & assists
+    .groups = "drop"
+  )
+
+```
+
+```{r}
+players_champion_perf <- players_champion %>%
+  left_join(perf_summary, by = "player_id") %>%
+  relocate(year_start, goals, assists, perf, .after = player_id)
+```
+
+```{r}
+players_champion_perf_wide <- players_champion_perf %>%
+  pivot_wider(
+    id_cols = c(player_id, current_club_name, height,
+        citizenship,
+        is_eu,
+        main_position,
+        foot,starts_with("value_"), starts_with("rank_")),
+    names_from = year_start,
+    values_from = c(goals, assists, nb_in_group,
+        nb_on_pitch,
+        goals,
+        assists,
+        
+        
+        own_goals,
+        subed_in,
+        subed_out,
+        yellow_cards,
+        second_yellow_cards,
+        direct_red_cards,
+        penalty_goals,
+        minutes_played,
+        goals_conceded,
+        clean_sheets
+       ),
+    names_glue = "{.value}_{year_start}"   # e.g., goals_2021, assists_2022
+  )
+```
+
+```{r}
+players_champion_perf_wide <- players_champion_perf_wide %>%
+  select(-starts_with("goals_conceded_"))
+
+players_champion_perf_wide <- players_champion_perf_wide %>%
+  select(-assists_NA)%>%
+  select(-goals_NA)
+
+```
+
+
+
+```{r}
+write_csv(
+  players_champion_perf_wide,
+  "~/Desktop/stat/players_champion_perf_wide_2.csv"
+)
+```
+
+
+
+

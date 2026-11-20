@@ -1,0 +1,14 @@
+# Raw and full processed data are not redistributed (see README -> Data)
+data/raw/
+data/processed/
+
+# R session files
+.RData
+.Rhistory
+.Rproj.user/
+*_files/
+*_cache/
+
+# macOS / Office temp files
+.DS_Store
+~$*
